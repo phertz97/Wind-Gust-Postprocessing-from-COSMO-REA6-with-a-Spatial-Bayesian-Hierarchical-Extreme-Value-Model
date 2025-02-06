@@ -1,27 +1,30 @@
-// Stan Code for the spatial model as I used it for fitting. The calculation of the covariance matrix is changed to incorporate the height differrence scaled by a factor of 100, which is motivated by quasi-geostrophic theory
+// Stan Code for the SpatBHM
+// Author: Philipp Ertz, Institute of Geosciences, Meteorology Section, Bonn University (pertz@uni-bonn.de)
+// For further information see: ... insert paper ...
+
 // The model can include other predictors and switch between spatial and non-spatial parameters, specified via input data
-functions {from outside
-    // haversine formula for great circle distance with altitude difference
+functions {
+    // haversine formula for great circle distance including scaled elevation offset
     real gr_circle_d(vector x, vector y, real hx, real hy, real f) {
-        real r = 6371;
+        real r = 6371; // earth's radius
         vector[2] x_rad = x*pi()/180;
         vector[2] y_rad = y*pi()/180;
         real z_diff = abs(hy-hx)/1000*f;  //difference in altitude, scaled with f to contribute to distance
         real d = 2 * r * asin(sqrt( sin( (y_rad[2]-x_rad[2]) /2 )^2 + cos(x_rad[2]) * cos(y_rad[2]) * sin( (y_rad[1]-x_rad[1]) /2)^2 )) + z_diff;
         return d;
     }
-    // matern 3/2 kernel for general distance measures d; here I will use the great circle distance above
+    // matern 3/2 covariance function
     real matern32_general(real distance, real sigma, real length_scale) {
         real k = square(sigma) * (1 + sqrt(3) * distance / length_scale) * exp( - sqrt(3) * distance / length_scale );
         return k;
     }
 }
 data {
-    //  numbers of data
+    // sample size
     int<lower=1> N; // number of observations
     int<lower=1> M; // number of stations
 
-    // informatio on stations
+    // weather station data
     array[M] vector[2] coord; // coordinates (lat/lon)
     vector[M] z_stat; // station altitude
     vector[M] z_grid; // model topography
@@ -29,32 +32,32 @@ data {
     // predictand
     vector[N] y;
 
-    // predictors(covariates)
-    int<lower=1> nxmu; //number of covariates for mu, first column has to be 1
-    int<lower=1> nxsig; // number of covariates for sigma, first column has to be 1
-    matrix[nxmu,N] Xmu; // covariates for mu
+    // predictors
+    int<lower=1> nxmu; // number of covariates for mu
+    int<lower=1> nxsig; // number of covariates for sigma
+    matrix[nxmu,N] Xmu; // covariates for mu, one column per predictor variable
     matrix[nxsig,N] Xsigma; // covariates for sigma
 
-    // assignment vector to station
+    // assignment vector to weather station
     array[N] int<lower=1, upper=M> nn; // vector assigning data point to station
 
-    // which parameters are spatial
+    // select spatial parameters, binary 0/1
     array[nxmu] int<lower=0, upper=1> mu_s; // decides, which mu elements are modelled spatially
     array[nxsig] int<lower=0, upper=1> sigma_s; // decides, which sigma-elements are modelled spatially
 
-    // priors, spatially constant/GRF mean
-    array[nxmu] vector[2] mu_prior; // parameters of the normal distribution as prior for mu_i itself or its GRF mean
-    array[nxsig] vector[2] sigma_prior; // parameters of the normal distribution as prior for sigma_i itself or its GRF mean
+    // parameters for GRF mean priors (normal)
+    array[nxmu] vector[2] mu_prior; // prior parameters for location, two for each covariate
+    array[nxsig] vector[2] sigma_prior; // prior parameters for scale, two for each covariate
 
-    // GRF priors
-    array[sum(mu_s)+ sum(sigma_s)] vector[2] sills_prior;
-    array[sum(mu_s) + sum(sigma_s)] vector[2] ranges_prior;
+    // covariance parameter priors (inverse Gamma)
+    array[sum(mu_s)+ sum(sigma_s)] vector[2] sills_prior; // prior parameters for sills/process variance, two for each spatial field
+    array[sum(mu_s) + sum(sigma_s)] vector[2] ranges_prior; // prior parameters for ranges/length scales, two for each spatial field
 
-    // Prior f
-    vector[2] f_prior; //mean and variance of the scaling factor
+    // prior for the altitude scaling factor f_z
+    vector[2] f_prior; // mean and variance (normal)
 }
 transformed data {
-    array[M] vector[2] x; // assign coordinates to vectors
+    array[M] vector[2] x; // transform coordinate array to vectors
     for (m in 1:M){
         x[m] = to_vector(coord[m,]);
     }
@@ -68,32 +71,30 @@ parameters {
     vector[nxmu] expect_mu;
     vector[nxsig] expect_sigma;
 
-    //GRF parameters
+    // GRF parameters (sills and ranges)
     vector<lower=0>[sum(mu_s) + sum(sigma_s)] sills;
     vector<lower=0>[sum(mu_s) + sum(sigma_s)] ranges;
 
-    // save all spatial parameters
-    // spatial representations
+    // store representations of spatial fields
     array[sum(mu_s) + sum(sigma_s)] vector[M] spat_pars;
-
 }
 model {
     real dist;
 
-    // model mu vectors
+    // mu vectors
     matrix[M,nxmu] mu;
 
-    // model sigma vectors
+    // sigma vectors
     matrix[M,nxsig] sigma;
 
-    // prior for the altitude factor, use when you think it is necessary.
+    // prior for the altitude factor
     f ~ normal(f_prior[1],f_prior[2]);
 
-    // counter for spatial parameters
+    // counter for spatial fields
     int spat_count;
     spat_count = 0;
 
-    //model mu parameters
+    // model mu^j
     for (k in 1:nxmu){
         // define prior for GRF mean/spatially constant parameter
         expect_mu[k] ~ normal(mu_prior[k][1], mu_prior[k][2]);
@@ -127,7 +128,7 @@ model {
         }
     }
 
-    // model sigma parameters
+    // model sigma^j
     for (k in 1:nxsig){
         // define prior for GRF mean/spatially constant parameter
         expect_sigma[k] ~ normal(sigma_prior[k][1], sigma_prior[k][2]);
@@ -165,12 +166,12 @@ model {
     vector[N] mu_vector;
     vector[N] sigma_vector;
 
-    // loop over all data points, work with station assignment vector mu
+    // loop over all data points, work with station assignment vector nn
     for (i in 1:N){
         mu_vector[i] = to_row_vector(mu[nn[i],])*to_vector(Xmu[,i]);
         sigma_vector[i] = to_row_vector(sigma[nn[i],])*to_vector(Xsigma[,i]);
     }
 
-    // model wind gust distribution by vectorized sampling statement
+    // model wind gust distribution
     y ~ gumbel(mu_vector, exp(sigma_vector));
 }
