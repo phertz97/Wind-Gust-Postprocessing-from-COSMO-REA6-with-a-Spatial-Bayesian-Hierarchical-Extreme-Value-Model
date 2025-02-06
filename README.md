@@ -7,8 +7,5 @@ All models are fitted using Hamilonian Monte Carlo techniques and are implemente
 
 
 ## References:
-***
-Stan Development Team. 2025. Stan Reference Manual, 2.33. https://mc-stan.org
 
-## Disclaimer:
-This software uses R packages that are licensed under GPLv3. These packages are not included in this repository and must be installed separately. The code in this repository is licensed under the MIT license.
+Stan Development Team. 2025. Stan Reference Manual, 2.33. https://mc-stan.org
