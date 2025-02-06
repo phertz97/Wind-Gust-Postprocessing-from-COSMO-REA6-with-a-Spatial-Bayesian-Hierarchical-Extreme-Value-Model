@@ -1,15 +1,21 @@
+// Author: Philipp Ertz, Institute of Geosciences, Meteorology Section, Bonn University (pertz@uni-bonn.de)
+// For further information see: ... insert paper ...
+
 // Stan code for the spatially ConstBHM model without a variable number of covariates. Prior parameters and covariates are specified from the outside.
 data {
-    int<lower=1> N; // number of data pairs of covariate and predictand
-    vector[N] y; //predictand, either fx or fx-VMEAN
-    int<lower=1> Mmu; // number of covariates for 
-    int<lower=1> Msigma; // number of covariates for scale
-    matrix[N, Mmu] xmu; // covariates for location, e.g. VMAX or VMEAN or station height
-    matrix[N, Msigma] xsigma; // covariates for scale
-    vector[Mmu] mumeans;
-    vector[Mmu] muvariances;
-    vector[Msigma] sigmameans;
-    vector[Msigma] sigmavariances;
+    // model specifications
+    int<lower=1> N;              // observation/forecast sample size
+    vector[N] y;                 // predictand, either fx or fx-VMEAN
+    int<lower=1> Mmu;            // number of covariates for lcoation
+    int<lower=1> Msigma;         // number of covariates for scale
+    matrix[N, Mmu] xmu;          // predictors for location, e.g. VMAX or VMEAN or station height
+    matrix[N, Msigma] xsigma;    // predictors for scale
+
+    // prior parameters (normal)
+    vector[Mmu] mumeans;          // mean of location regression coefficients
+    vector[Mmu] muvariances;      // variance of location regression coefficients
+    vector[Msigma] sigmameans;    // mean of scale regression coefficients
+    vector[Msigma] sigmavariances;// variance of scale regression coefficients
 }
 parameters {
     //regression parameters for location
