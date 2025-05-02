@@ -4,10 +4,41 @@ We propose a probabilistic gust analysis for the region of Germany that can be i
 
 All models are fitted using Hamiltonian Monte Carlo techniques and are implemented using Stan (https://mc-stan.org). The prediction process including the conditional simulation of the GRF in space at unobserved locations is implemented using GNU licensed free software from the R Project for Statistical Computing (http://www.r-project.org).
 
+## Workflow notes:
 
+The entire pipeline was distributed across multiple tools and environments, as each phase required specific libraries. The data was first downloaded via shell scripts and preprocessed in a Jupyter notebook using `xarray`, `pandas`, and `numpy`. The model training was also performed in a Jupyter notebook using the `pystan`-interface (Riddel et al. 2021). Prediction and verification were performed in R scripts via the shell, while visualization was carried out in another Jupyter notebook using `matplotlib`.
+
+To ensure reproducibility, all relevant scripts are available as separate files. A detailed guide for setting up the respective environments, installing the necessary libraries, and switching between the different tools is provided in the accompanying `README.md` document.
+
+The data is provided in standardized formats (e.g., CSV, NetCDF), which can be used seamlessly across all tools. Additional instructions on adjusting file paths and configuring the environment are also included in the `README.md` document.
+
+## Model names
+
+Model names in this code differ from those in the manuscript. Please refer to the following table for correspondence:
+
+| Name in paper     | Name in code          | Description                           |
+|-------------------|-----------------------|---------------------------------------|
+| ConstMod 1        | `Baseline0`           | most simple spatially constant model  |
+| ConstMod 2        | `Baseline_mu2`        | as 1. + altitude predictor $\Delta_z$ |
+| ConstMod 3        | `Baseline_vmean`      | but predicting $fx-V_\text{m}$        |
+| ConstMod 4        | `Baseline_optimal`    | as 3. + predictor $V_\text{m}$        |
+| LocMod            | `LocMod`              | as 4., without $\Delta_z$, trained on individual stations |
+| SpatBHM 1         | `SM_mu0_f`            | Model with spatial $\mu^0$, scaled altitude offset in distance metric |
+| SpatBHM 2a        | `SM_mu0_mu1_f`        | Model with spatial $\mu^0, \mu^1$, scaled altitude offset in distance metric |
+| SpatBHM 2b        | `SM_mu0_mu2_f`        | Model with spatial $\mu^0,\mu^2$, scaled altitude offset in distance metric |
+| SpatBHM 2c        | `SM_mu0_sigma0_f`     | Model with spatial $mu^0, \varsigma^0$, scaled altitude offset in distance metric |
+| SpatBHM 3         | `SM_mu0_mu1_mu2_f`    | Model with spatial $mu^0,\mu^1,\mu2$, scaled altitude offset in distance metric |
 
 ## References:
   
-  Bollmeyer, C., and Coauthors, 2015: Towards a high‐resolution regional reanalysis for the European CORDEX domain. Quart J Royal Meteoro Soc, 141, 1–15, https://doi.org/10.1002/qj.2486
+  Bollmeyer, C., Keller, J. D., Ohlwein, C., Wahl, S., Crewell, S., Friederichs, P., Hense, A., Keune, J., Kneifel, S., Pscheidt, I., Redl, S. and Steinke, S.: Towards a high-resolution regional reanalysis for the European CORDEX domain, Q. J. R. Meteorol. Soc., 141, 1–15, https://doi.org/10.1002/qj.2486, 2015.
 
-  Stan Development Team. 2025. Stan Reference Manual, 2.33. https://mc-stan.org
+  Climate Data Center: Observations Germany, https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/,
+last access: 31 October 2023, 2023
+  
+  R Development Core Team: R: A language and environment for statistical computing, R Foundation for Statistical Computing, Vienna,
+Austria, http://www.R-project.org, ISBN 3-900051-07-0, 2010.
+  
+  Riddell, A., Hartikainen, A., and Carter, M.: pystan (3.0.0), PyPI, 2021.
+
+  Stan Development Team: Stan: A probabilistic programming language, Stan Development Team, https://mc-stan.org/, version 2.33, 2022.
