@@ -1,0 +1,15 @@
+# Prediction notes
+
+For all ConstMod versions and and LocMod, apply `predict_gusts.R` directly, to predict the model in Cross-Validation. The script will create an output directory with the provided model name in this directoy, that contains the prediction samples.
+
+For all SpatBHM versions, first run `spatial_interpolation.R`, to interpolate the model to the prediction locations. Then run `predict_gusts.R`.
+
+The scripts are run from the shell via
+
+`Rscript predict_gusts.R <model_names>`
+
+and
+
+`Rscript spatial_interpolation.R <model_names>`.
+
+The scripts can predict multiple models in succession.
