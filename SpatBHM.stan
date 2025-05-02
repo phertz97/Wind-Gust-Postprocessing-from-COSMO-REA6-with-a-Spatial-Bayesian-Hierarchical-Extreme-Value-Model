@@ -10,7 +10,8 @@ functions {
         vector[2] x_rad = x*pi()/180;
         vector[2] y_rad = y*pi()/180;
         real z_diff = abs(hy-hx)/1000*f;  //difference in altitude, scaled with f to contribute to distance
-        real d = 2 * r * asin(sqrt( sin( (y_rad[2]-x_rad[2]) /2 )^2 + cos(x_rad[2]) * cos(y_rad[2]) * sin( (y_rad[1]-x_rad[1]) /2)^2 )) + z_diff;
+        real d_gc = 2 * r * asin(sqrt( sin( (y_rad[2]-x_rad[2]) /2 )^2 + cos(x_rad[2]) * cos(y_rad[2]) * sin( (y_rad[1]-x_rad[1]) /2)^2 )) + z_diff;
+        real d =sqrt(d_gc^2 + z_diff^2):
         return d;
     }
     // matern 3/2 covariance function
@@ -88,7 +89,7 @@ model {
     matrix[M,nxsig] sigma;
 
     // prior for the altitude factor
-    f ~ normal(f_prior[1],f_prior[2]);
+    f ~ gamma(f_prior[1],f_prior[2]);
 
     // counter for spatial fields
     int spat_count;
