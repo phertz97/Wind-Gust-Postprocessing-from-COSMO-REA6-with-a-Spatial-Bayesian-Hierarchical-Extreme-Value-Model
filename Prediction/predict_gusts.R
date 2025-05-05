@@ -13,7 +13,7 @@ library(evd)
 args <- commandArgs(trailingOnly=TRUE)
 models <- args
 store.q_thr <- FALSE # save quantile and threshold predictions instead of complete samples
-dir.path <- ""
+dir.path <- "./"
 eligible_models <- c("Baseline0",
                       "Baseline_mu2",
                       "Baseline_vmean",
