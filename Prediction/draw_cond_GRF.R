@@ -1,13 +1,11 @@
-############################################################################################################################
-# Author: Philipp Ertz, Institue of Geosciences, Meteorology Section, Bonn University (pertz@uni-bonn.de)
-# Last updated: July 2024
-# For further information see: ... insert paper...
-# 
-# Functions required for the prediction process fro SpatBHM:
+########################################################################################################
+# Author: Philipp Ertz, last edited: July 16, 2024
+#
+# Functions required for the prediction process:
 # predict.gusts: function for sampling from Gumbel-distribution, provided covariate vectors and regression coefficients.
 # draw_cond_GRF: drawing one representation for the prediction locations from one Gaussian random field.
-# draw_cond_large_GRF: iterative application of draw_cond_GRF, for drawing large fields from a conditional GRF (Chapter 5.5)
-#############################################################################################################################
+# draw_cond_large_GRF: iterative application of draw_cond_GRF, for drawing large fields from a conditional GRF
+########################################################################################################
 
 library("MASS") # for drawing from MV-norm distribution
 library("geosphere") # for Haversine formula
@@ -15,14 +13,14 @@ library("geoR") # for matern function. Be careful to scale phi with 1/sqrt(3) an
 library("evd") # for sampling from Gumbel distribution
 
 # Function for sampling from conditional Gumbel distribution.
-predict.gusts <- function(mus, # regression coefficients for location; numerical vector, 1 element per covariate
-                            sigmas, # regression coefficients for scale; numerical vector 1 element per covariate
+predict.gusts <- function(mus, # regression coefficients for location numerical vector 1 element per covariate
+                            sigmas, # regression coefficients for scale; numerical vector one element per covariate
                             xmu, # covariate vectors for location, matrix with columns for each covariate
                             xsigma  # covariate vectors for scale, matrix with columns for each covaraite
                             )
 {
     # Vectorized over covariate values, apply for each draw from the conditional distribution of the regression coefficient to obtain a sample.
-    # Be careful to add VMEAN again, when fitting fx-VMEAN, as the function only returns the direct predictant
+    # Be careful to add VMEAN again, when fitting fx-VMEAN, as the function only returns the direct predictant.
     if (dim(xmu)[1]!= dim(xsigma)[1]){stop("Covariate vectors must have the same length.")}
     N <- dim(xmu)[1]
 
@@ -35,41 +33,44 @@ predict.gusts <- function(mus, # regression coefficients for location; numerical
     return(fx_predicted)
 }
 
-# draw one representation of the conditional values at the prediction locations ("kriging")
+
+
+# draw one representation of the conditional values at the prediction locations
 draw_cond_GRF <- function(theta, # observed values
                   xnew, # new locations
                   xgiven, # old locations
                   alpha=0, # mean
                   sigma=1, # sill
                   rho=100, # range
-                  f=0, # scaling factor for elevation offset
+                  f=0, # scaling factor for altitude difference
                   znew = NULL, # altitude of new locations
                   zgiven = NULL # altitude of given locations
                   ){
     # retrieve number of given and prediction locations
     if(is.vector(xnew)){xnew <- matrix(xnew, ncol=2)}
-    N <- dim(xgiven)[1]     # number of observations
-    J <- dim(xnew)[1]       # number of predictions
-    nu <- 3/2               # smoothness parameter of Matern-function (fixed value)
-    R_e <- 6371000          # Earth's radius
+    N <- dim(xgiven)[1] # number of observations
+    J <- dim(xnew)[1] # number of predictions
+    nu <- 3/2 # smoothness parameter of Matern-function
+    R_e <- 6371000 # Earth's radius
+    #print(min(znew))
+    #print(min(zgiven))
 
-    # calculate distance matrix for given locations
+    # calculate covariance matrix for given stations
     dist_given <- matrix(0,nrow=N, ncol=N)
     for (i in 1:N){
-        dist_given[,i] <- distHaversine(xgiven, xgiven[i,], r=R_e)/1000 # use great circle distance
+        dist_given[,i] <- distHaversine(xgiven, xgiven[i,], r=R_e)/1000
     }
     if (f){
         d_update <- matrix(0,nrow=N, ncol=N)
         for (i in 1:N){
-            d_update[,i] <- f * abs(zgiven-zgiven[i]) /1000 # calculate altitude contribution
+            d_update[,i] <- f * abs(zgiven-zgiven[i]) /1000
         }
-        dist_given <- dist_given + d_update
+        dist_given <- sqrt(dist_given^2 + d_update^2)
     }
 
-    # evaluate covariance function
-    K_given <- (sigma^2) * matern(dist_given, rho/sqrt(2*nu), nu) # be careful with definition of parameters, as this is a general matern-class function
-    #diag(K_given) <- diag(K_given) + 1e-5 # regularize
-    K_inv <- solve(K_given) # invert
+    K_given <- (sigma^2) * matern(dist_given, rho/sqrt(2*nu), nu)
+    diag(K_given) <- diag(K_given) + 1e-5
+    K_inv <- solve(K_given)
 
     # calculate covariance for new stations
     dist_new <- matrix(0,nrow=J, ncol=J)
@@ -81,11 +82,11 @@ draw_cond_GRF <- function(theta, # observed values
         for (i in 1:J){
             d_update[,i] <- f * abs(znew-znew[i]) /1000
         }
-        dist_new <- dist_new + d_update
+        dist_new <- sqrt(dist_new^2 + d_update^2)
     }
     K_new <- sigma^2*matern(dist_new, rho/sqrt(nu*2), nu)
 
-    # calculate cross-covariance matrix between given and new locations
+    # calculate cross-distance matrix
     dist_cross <- matrix(0,nrow=N,ncol=J)
     for (i in 1:J){
         dist_cross[,i] <- distHaversine(xgiven, xnew[i,], r=R_e)/1000
@@ -95,7 +96,7 @@ draw_cond_GRF <- function(theta, # observed values
         for (i in 1:J){
             d_update[,i] <- f * abs(zgiven-znew[i]) /1000
         }
-        dist_cross <- dist_cross + d_update
+        dist_cross <- sqrt(dist_cross^2 + d_update^2)
     }
     K_cross <- sigma^2*matern(dist_cross,rho/sqrt(2*nu), nu)
 
@@ -105,16 +106,20 @@ draw_cond_GRF <- function(theta, # observed values
 
     # calculate conditional covariance
     theta_cov <- K_new - t(K_cross) %*% K_inv %*% K_cross
+    #print(eigen(theta_cov)$values)
 
     # draw new representations
+    #print( all(eigen(theta_cov)$values>0))
     theta_new <- mvrnorm(mu=theta_new_mean, Sigma=theta_cov, tol=1e-1)
 
     # return predicted vector
     return(theta_new)
 }
 
+#coord_new <- mvrnorm(c(10,51), Sigma=matrix(c(2,0,0,2), nrow=2, ncol=2),n=10)
+
 ## Function for iteratively draw large samples. Has to be performed several times to obtain an estimate of the mean and variance at each location.
-## Code breaks down numerically, when the elevation offset is included. We tested regularizations of the covariance matrices to no avail.
+
 draw_cond_large_GRF <- function(xgiven,
                                 theta,
                                 xnew,
@@ -142,10 +147,10 @@ draw_cond_large_GRF <- function(xgiven,
     theta_new <- vector("numeric", length=N)
 
     # loop over all bins
-    print(paste("Start iterative drawing procedure with ", nbins, "iterations and a batch size of ", nbatch))
+    print(paste("Start iterative drawing procedure with", nbins, "iterations and a batch size of", nbatch))
     pb = txtProgressBar(min=0, max=nbins, initial=1)
     for (i in 1:nbins){
-        print(i)
+        #print(i)
         # select indices for bins
         if (i==nbins){
             ind <- ((i-1)*nbatch+1):N # make sure the index does not exceed the end
@@ -158,15 +163,15 @@ draw_cond_large_GRF <- function(xgiven,
             # take original values in the first round
             xg_bin <- xgiven
             theta_bin <- theta
-            if(f){zg_bin <- zgiven} else{zg_bin<-NULL} # only when f is provided
+            if(mean(f)>0){zg_bin <- zgiven} else{zg_bin<-NULL} # only when f is provided
         } else {
             # add results from last fit in all subsequent rounds
             xg_bin <- rbind(xnew[ind-nbatch,], xgiven)
             theta_bin <- c(theta_new[ind-nbatch], theta)
-            if (f){zg_bin <- c(znew[ind-nbatch], zgiven)} else {zg_bin<-NULL}# only when f is provided
+            if (mean(f)>0){zg_bin <- c(znew[ind-nbatch], zgiven)} else {zg_bin<-NULL}# only when f is provided
         }
         xnew_bin <- xnew[ind,]
-        if(f){znew_bin <- znew[ind]} else {znew_bin<-NULL}
+        if(mean(f)>0){znew_bin <- znew[ind]} else {znew_bin<-NULL}
 
         # draw from conditional GRF
         theta_new[ind] <- draw_cond_GRF(theta=theta_bin,
@@ -187,3 +192,11 @@ draw_cond_large_GRF <- function(xgiven,
     if(resample){theta_new <- theta_new[order(i_res)]} # resample back for output
     return(theta_new)
 }
+
+
+
+
+
+
+
+
