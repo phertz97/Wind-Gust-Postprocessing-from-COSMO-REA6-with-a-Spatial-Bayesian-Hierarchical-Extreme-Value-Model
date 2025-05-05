@@ -32,14 +32,14 @@ Geographic coordinates and elevation data were not modified. The final list of s
 The predictor data from COSMO-REA6 used in this study is obtained from the DWD open data server https://opendata.dwd.de/climate_environment/REA/COSMO-REA6/. 
 The data was downloaded as `.grb`-files and processed using `xarray 2024.7.0` in Python version `3.9.18.`
 
-## 2.1 VMAX_10M
+### 2.1 VMAX_10M
 
 The VMAX_10M data is obtained from  https://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/VMAX_10M/, last access on 31 October 2023. 
 For each SYNOP station, we retrieved a matching time series from the grid cell closest to the geographical coordinates provided in `used_stations.csv`, measured by the great-circle distance.
 We took the hours 13-18 UTC and calculated caily maxima. The data are stored in a `.csv`-file using the same data structure as for the SYMOP-observations. 
 The final preprocessed datasets can be found under `vmax_training.csv`, containing the odd-numbered years, and `vmax_evaluation.csv`, containing the even-numbered years.
 
-## 2.2 VMEAN_10M
+### 2.2 VMEAN_10M
 
 In order to obtain the values for VMEAN_2M, the horizontal wind components U_10M and V_10M were obtained from https://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/U_10M/ 
 & https://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/V_10M/, last access: 31 October 2023.
@@ -51,7 +51,7 @@ $V_\textrm{m} = \sqrt{U^2+V^2}$
 and calculated caily averages. The data are stored in a `.csv`-file using the same data structure as for the SYMOP-observations. 
 The final preprocessed datasets can be found under `vmean_training.csv`, containing the odd-numbered years, and `vmean_evaluation.csv`, containing the even-numbered years.
 
-## 2.3 HSURF
+### 2.3 HSURF
 
 The surface elevation data from COSMO-REA6 is obtained from https://opendata.dwd.de/climate_environment/REA/COSMO_REA6/constant/COSMO_REA6_CONST_withOUTsponge.nc.bz2, last access on 31 October 2023. 
 For each SYNOP station, we retrieved the variable `HSURF` from the grid cell closest to the geographical coordinates provided in `used_stations.csv`, measured by the great-circle distance.
