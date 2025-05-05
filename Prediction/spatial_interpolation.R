@@ -4,7 +4,7 @@
 # This script performs the spatial interpolation of SpatBHM in cross-validation
 ######################################################################################################
 
-# Load kriging function: draw_cond_GRF() draws one conditional representation from a GRF (including altitude scaling, matern-covariance, distance along great circles)
+# Load kriging-function: draw_cond_GRF() draws one conditional representation from a GRF
 source("Prediction/draw_cond_GRF.R")
 
 # tidyverse library for string manipulation (for retrieving execution info from model name)
@@ -151,9 +151,9 @@ for (model_name in models){
       kriging_values[pd_back[par,]] = fit[paste("expect_", par, sep="")]
     }
 
-    ###################
-    # write to file
-    ###################
+    ####################
+    # write output file
+    ####################
 
     filename <- paste(output.dir, "/kriged_values_",stat.ids[i], "_", model_name,".csv" ,sep="")
     write.table(kriging_values, file=filename, col.names=TRUE, sep=",", row.names=FALSE)
