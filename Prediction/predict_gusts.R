@@ -109,11 +109,9 @@ for (model_name in models){
         MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",tolower(model_name),"_fit_",labels[s],".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
     } else if(model_name=="LocMod"){
         MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",model_name,"_fit_",labels[s],".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
-    } else if (substring(model_name,1,1)=="S")} else {
-        vmax_pred <- normalize_predictor(vmax, labels[s], labels)
-        vmean_pred <- normalize_predictor(vmean, labels[s], labels)
-        N <- length(vmax_pred)
-    }
+    } else if (substring(model_name,1,1)=="S"){
+        MC <- read.table(paste(dir.path,paste("Kriging/",model_name,"/kriged_values_",labels[s],"_",model_name,".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
+    } else {stop("Invalid model")}
 
     rownames(MC) <- 1:10000
     # loop over all dates
