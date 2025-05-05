@@ -1,6 +1,6 @@
 
 ####################################################################################################
-# Author: Philipp Ertz, July 2024
+# Author: Philipp Ertz, July 2024. Last edited: May 2025
 #
 # This is an R script to perform the wind gust prediction process for all different gust models.
 # The models are selected via command line arguments from the shell.
@@ -12,7 +12,7 @@ library(evd)
 # pass model name as command line argument
 args <- commandArgs(trailingOnly=TRUE)
 models <- args
-store.q_thr <- FALSE # save quantile and threshold predictions instead of complete samples
+store.q_thr <- FALSE # save quantiles and threshold predictions instead of complete samples
 dir.path <- "./"
 eligible_models <- c("Baseline0",
                       "Baseline_mu2",
@@ -33,11 +33,11 @@ for (model_name in models){
 
   # get station IDs, coordinates and elevations
   stat_info <- read.table(file = paste(dir.path, "Data/used_stations.csv", sep=""), sep=",", header=TRUE, colClasses= c(rep("character",3), rep("numeric",3), rep("character",2)))
-  labels <- str_pad(stat_info$Stations_id, width = 5, side = "left", pad = "0")
+  stat.ids <- str_pad(stat_info$Stations_id, width = 5, side = "left", pad = "0")
   z_station <- stat_info$Stationshoehe
-  z_grid <- unname(unlist(read.table(paste(dir.path,"Data/rea6_elevation.txt",sep=""))))
+  z_grid <- unname(unlist(read.table(paste(dir.path,"Data/COSMO-REA6_HSURF_stations.csv",sep=""), header=TRUE, sep=",")$HSURF))
 
-  # check directory
+  # output directory
   output.dir <- paste(dir.path, "Prediction/", model_name, sep="")
   if (!dir.exists(output.dir)){
     dir.create(output.dir, recursive=TRUE)
@@ -45,11 +45,11 @@ for (model_name in models){
   print(paste("Predicting from ", model_name, ". Prediction files will be saved in ", output.dir, sep=""))
 
   # read data for fx, VMEAN and VMAX
-  fx <- read.table(paste(dir.path,"/Data/fx_for_evaluation.csv",sep=""), header=TRUE, sep=",")
-  vmax <- read.table(paste(dir.path,"/Data/vmax_for_evaluation.csv",sep=""), header=TRUE, sep=",")
-  vmean <- read.table(paste(dir.path,"/Data/vmean_for_evaluation.csv",sep=""), header=TRUE, sep=",")
+  fx <- read.table(paste(dir.path,"/Data/fx_evaluation.csv",sep=""), header=TRUE, sep=",")
+  vmax <- read.table(paste(dir.path,"/Data/vmax_evaluation.csv",sep=""), header=TRUE, sep=",")
+  vmean <- read.table(paste(dir.path,"/Data/vmean_evaluation.csv",sep=""), header=TRUE, sep=",")
 
-  M <- length(labels)
+  M <- length(stat.ids)
   dates <- fx[,1]
   fx <- fx[,2:(M+1)]
   vmax <- vmax[,2:(M+1)]
@@ -75,18 +75,17 @@ for (model_name in models){
   }
 
   print("Finished reading observations. Start prediction of wind gusts.")
-
+  ######################################
   # perform actual prediction process
+  ######################################
+  
   n.sample = 10000
-
-  # thresholds and quantiles to save
-  range <- 1:length(labels)
 
   # create progress bar
   pb = txtProgressBar(min=0, max=M, initial=1)
 
   # loop over all stations
-  for (s in range){
+  for (s in 1:length(stat.ids)){
     # get standardized predictor vectors
     if (model_name=="LocMod"){
         # individual station normalization
@@ -95,8 +94,8 @@ for (model_name in models){
         N <- length(vmax_pred)
     } else {
         # whole data set normalization
-        vmax_pred <- normalize_predictor(vmax, labels[s], labels)
-        vmean_pred <- normalize_predictor(vmean, labels[s], labels)
+        vmax_pred <- normalize_predictor(vmax, stat.ids[s], stat.ids)
+        vmean_pred <- normalize_predictor(vmean, stat.ids[s], stat.ids)
         N <- length(vmax_pred)
     }
 
@@ -106,11 +105,11 @@ for (model_name in models){
     # get parameter samples
     sampling_ind <- sample(1:1000,n.sample, replace=TRUE) # generate a vector sampling from the Markov chains
     if (substring(model_name,1,1)=="B"){
-        MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",tolower(model_name),"_fit_",labels[s],".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
+        MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",model_name,"_",stat.ids[s],"_fit.csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
     } else if(model_name=="LocMod"){
-        MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",model_name,"_fit_",labels[s],".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
+        MC <- read.table(paste(dir.path,paste("/Model_fits/",model_name,"/",model_name,"_",stat.ids[s],"_fit.csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
     } else if (substring(model_name,1,1)=="S"){
-        MC <- read.table(paste(dir.path,paste("Kriging/",model_name,"/kriged_values_",labels[s],"_",model_name,".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
+        MC <- read.table(paste(dir.path,paste("Kriging/",model_name,"/kriged_values_",stat.ids[s],"_",model_name,".csv", sep=""),sep=""), sep=",", header=TRUE)[sampling_ind,]
     } else {stop("Invalid model")}
 
     rownames(MC) <- 1:10000
@@ -122,20 +121,19 @@ for (model_name in models){
                           "SM_mu0_f",
                           "SM_mu0_mu1_f",
                           "SM_mu0_mu2_f",
-                          "SM_mu0_mu1_mu2_f",
-                          "SM_mu0_mu2_sigma0_f",
+                          "SM_mu0_mu1_mu2_f"
                           "SM_mu0_sigma0_f")){
         mu <- MC$mu0 + vmax_pred[n] * MC$mu1
         sigma_pred <- MC$sigma0 + vmax_pred[n] * MC$sigma1
       } else {
-          # later models use a different naming convention for the parameters, as I started using the adaptive code.
+        # ConstMod uses a differnet naming convention for the parameters.
         mu <- MC$mu.1 + vmax_pred[n] * MC$mu.2
         sigma_pred <- MC$sigma.1 + vmax_pred[n] * MC$sigma.2
       }
-      # increase mu with altitude predictor (models with different numbering of coefficients)
+      
+      # increase mu with altitude predictor for ConstMod versions without VMEAN-predictor
       if (model_name %in% c("Baseline_mu2",
                             "Baseline_vmean")){
-
         mu <- mu + MC$mu.3 * elevation[s]/100
       }      
 
@@ -177,16 +175,16 @@ for (model_name in models){
       }
     }
     
-    # store data to data.frame
+    # store data in data.frame
     fx_pred <- data.frame(fx_pred)
     colnames(fx_pred) <- dates
 
     if (store.q_thr==FALSE){
-      write.table(fx_pred,file=paste(output.dir, "/fx_predicted_",labels[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
+      # write output file
+      write.table(fx_pred,file=paste(output.dir, "/fx_predicted_",stat.ids[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
     }
-    # if you want to stroe quantile and threshold predictions instead, use this:
 
-    # write data to file
+    # store quantiles and threshold predictions **instead**
     if (store.q_thr==TRUE){
       thr <- c(14,18,25,29,33)
       qs <- c(0.0,0.001, seq(0.01,0.99,0.01), 0.999,1)
@@ -206,13 +204,12 @@ for (model_name in models){
       colnames(thr_pred) <- dates
       rownames(thr_pred) <- thr
 
-      write.table(q_pred,file=paste(output.dir,"/q_predicted_",labels[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
-      write.table(thr_pred,file=paste(output.dir, "/thr_predicted_",labels[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
+      # write output files for quantiles and thresholds
+      write.table(q_pred,file=paste(output.dir,"/q_predicted_",stat.ids[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
+      write.table(thr_pred,file=paste(output.dir, "/thr_predicted_",stat.ids[s], ".csv", sep=""), sep=",", row.names=T, col.names=T)
     }
-    
     setTxtProgressBar(pb,s)
   }
-      
   close(pb)
 }
     
