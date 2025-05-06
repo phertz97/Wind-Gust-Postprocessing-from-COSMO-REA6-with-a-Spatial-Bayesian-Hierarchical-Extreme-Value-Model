@@ -1,1 +1,1 @@
-## output directory to store model fits.
+output directory to store model fits
