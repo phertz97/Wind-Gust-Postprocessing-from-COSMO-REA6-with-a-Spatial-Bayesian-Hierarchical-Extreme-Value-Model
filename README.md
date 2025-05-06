@@ -16,7 +16,7 @@ Germany.
 
 All models are fitted using Hamiltonian Monte Carlo techniques and are implemented using Stan (https://mc-stan.org). The prediction process including the conditional simulation of the GRF in space at unobserved locations is implemented using GNU licensed free software from the R Project for Statistical Computing (http://www.r-project.org).
 
-## Workflow notes:
+## Workflow notes
 
 The entire pipeline was distributed across multiple tools and environments. The preprocessed data sets used for model training are found in the subdirectory `Data`, along with further details on the preprocessing. The model training was performed in a Jupyter notebook using the `pystan`-interface (Riddel et al. 2021). The model code is provided under `Stan_code` and a Jupyter Notebook with examples for its application is found under `Model_training_examples.ipynb`. Please note, that the execution of the model-fitting can take up to several weeks of computation time and creates an output directory `model_fits` with subdirectories according to model name. Prediction and verification were performed in R scripts via the shell. The prediction-scripts, including the spatial interpolation procedure, are provided in `Prediction`, along with further explanations in `Prediction/prediction.md`. Likewise, the running of `Prediction/spatial_interpolation.R` and `Prediction/predict_gusts.R` will create individual output directories.
 
@@ -43,12 +43,23 @@ Model names in this code differ from those in the manuscript. Please refer to th
 
 For further details, please refer to the manuscript, Sect. 3. & 4.1
 
-## References:
+## R libraries for verification
+
+We used the library `reliabilitydiag` (Dimitriadis et al. 2021) for the calculation of the Brier score. For the calculation and decomposition of the quantie score (Gneiting et al. 2023), we used MIT-licensed code shared by Daniel Wolffram under https://github.com/dwolffram/replication-ARSIA2023/tree/main/R.
+
+## References
   
   Bollmeyer, C., Keller, J. D., Ohlwein, C., Wahl, S., Crewell, S., Friederichs, P., Hense, A., Keune, J., Kneifel, S., Pscheidt, I., Redl, S. and Steinke, S.: Towards a high-resolution regional reanalysis for the European CORDEX domain, Q. J. R. Meteorol. Soc., 141, 1–15, https://doi.org/10.1002/qj.2486, 2015.
 
   Climate Data Center: Observations Germany, https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/,
 last access: 31 October 2023, 2023
+
+  Dimitriadis, T., Gneiting, T., and Jordan, A. I.: Stable reliability diagrams for probabilistic classifiers, Proc. Natl. Acad. Sci. U.S.A., 118,
+e2016191 118, https://doi.org/10.1073/pnas.2016191118, 2021
+
+  Gneiting, T., Wolffram, D., Resin, J., Kraus, K., Bracher, J., Dimitriadis, T., Hagenmeyer, V., Jordan, A. I., Lerch, S., Phipps, K., and Schienle,
+M.: Model diagnostics and forecast evaluation for quantiles, Ann. Rev. Stat. Appl., 10, 597–621, https://doi.org/10.1146/annurev-statistics-775
+032921-020240, 2023.
   
   R Development Core Team: R: A language and environment for statistical computing, R Foundation for Statistical Computing, Vienna,
 Austria, http://www.R-project.org, ISBN 3-900051-07-0, 2010.
