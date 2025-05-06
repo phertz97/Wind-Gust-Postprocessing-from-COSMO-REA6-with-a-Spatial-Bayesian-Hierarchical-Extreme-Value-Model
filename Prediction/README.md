@@ -4,12 +4,13 @@ For all ConstMod versions and and LocMod, apply `predict_gusts.R` directly, to p
 
 For all SpatBHM versions, first run `spatial_interpolation.R`, to interpolate the model to the prediction locations. Then run `predict_gusts.R`. The interpolation script will store the output under `Kriging/<model_name>/`
 
-The scripts are run from the shell via
-
-`Rscript predict_gusts.R <model_names>`
-
+The scripts are run from the linux shell via
+```shell
+Rscript predict_gusts.R <model_names>
+```
 and
 
-`Rscript spatial_interpolation.R <model_names>`.
-
+```shell
+Rscript spatial_interpolation.R <model_names>
+```
 The scripts can predict multiple models in succession.
