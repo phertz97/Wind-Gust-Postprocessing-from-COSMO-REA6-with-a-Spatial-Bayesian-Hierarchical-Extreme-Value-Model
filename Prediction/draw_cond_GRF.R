@@ -61,10 +61,8 @@ draw_cond_GRF <- function(theta, # vector of observed values
 
     # calculate conditional covariance
     theta_cov <- K_new - t(K_cross) %*% K_inv %*% K_cross
-    #print(eigen(theta_cov)$values)
 
     # draw new representations
-    #print( all(eigen(theta_cov)$values>0))
     theta_new <- mvrnorm(mu=theta_new_mean, Sigma=theta_cov, tol=1e-1)
 
     # return predicted vector
@@ -95,7 +93,7 @@ draw_cond_large_GRF <- function(xgiven,
         print("resampling...")
         i_res <- sample(1:N, N, replace=FALSE)
         xnew <- xnew[i_res,]
-        if(f){znew <- znew[i_res]}
+        znew <- znew[i_res]
     }
 
     # save returned field
@@ -118,15 +116,15 @@ draw_cond_large_GRF <- function(xgiven,
             # take original values in the first round
             xg_bin <- xgiven
             theta_bin <- theta
-            if(mean(f)>0){zg_bin <- zgiven} else{zg_bin<-NULL} # only when f is provided
+            zg_bin <- zgiven
         } else {
             # add results from last fit in all subsequent rounds
             xg_bin <- rbind(xnew[ind-nbatch,], xgiven)
             theta_bin <- c(theta_new[ind-nbatch], theta)
-            if (mean(f)>0){zg_bin <- c(znew[ind-nbatch], zgiven)} else {zg_bin<-NULL}# only when f is provided
+            zg_bin <- c(znew[ind-nbatch], zgiven)
         }
         xnew_bin <- xnew[ind,]
-        if(mean(f)>0){znew_bin <- znew[ind]} else {znew_bin<-NULL}
+        znew_bin <- znew[ind]
 
         # draw from conditional GRF
         theta_new[ind] <- draw_cond_GRF(theta=theta_bin,
