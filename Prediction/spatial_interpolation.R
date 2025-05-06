@@ -137,14 +137,14 @@ for (model_name in models){
 
         # draw a conditional sample from the GRF
         kriging_values[n,pd_back[model_pars[par],]] <- draw_cond_GRF(theta=theta_fit,
-                                                         xnew=eval_coord,
-                                                         xgiven=coord,
+                                                         r.new=eval_coord,
+                                                         r.given=coord,
                                                          alpha=alpha[n],
                                                          sigma=sigma[n],
                                                          rho=rho[n],
                                                          f=f_scale[n],
-                                                         znew=z_pred,
-                                                         zgiven=z)
+                                                         z.new=z_pred,
+                                                         z.given=z)
       }
     }
     for (par in const_pars){
