@@ -1,8 +1,7 @@
 // Stan Code for the SpatBHM
 // Author: Philipp Ertz, Institute of Geosciences, Meteorology Section, Bonn University (pertz@uni-bonn.de)
-// For further information see: ... insert paper ...
 
-// The model can include other predictors and switch between spatial and non-spatial parameters, specified via input data
+// This model can include other predictors and switch between spatial and non-spatial parameters, specified via input data
 functions {
     // haversine formula for great circle distance including scaled elevation offset
     real gr_circle_d(vector x, vector y, real hx, real hy, real f) {
@@ -39,33 +38,33 @@ data {
     matrix[nxmu,N] Xmu; // covariates for mu, one column per predictor variable
     matrix[nxsig,N] Xsigma; // covariates for sigma
 
-    // assignment vector to weather station
+    // assignment vector data point to weather station
     array[N] int<lower=1, upper=M> nn; // vector assigning data point to station
 
-    // select spatial parameters, binary 0/1
-    array[nxmu] int<lower=0, upper=1> mu_s; // decides, which mu elements are modelled spatially
-    array[nxsig] int<lower=0, upper=1> sigma_s; // decides, which sigma-elements are modelled spatially
+    // select spatial parameters, binary/boolean vector
+    array[nxmu] int<lower=0, upper=1> mu_s; // which mu coefficients are modelled spatially? 1=yes, 0=no
+    array[nxsig] int<lower=0, upper=1> sigma_s; // which sigma coefficients are modelled spatially? 1=yes, 0=0
 
-    // parameters for GRF mean priors (normal)
-    array[nxmu] vector[2] mu_prior; // prior parameters for location, two for each covariate
-    array[nxsig] vector[2] sigma_prior; // prior parameters for scale, two for each covariate
+    // parameters for GRF mean priors (Gaussian)
+    array[nxmu] vector[2] mu_prior; // one vector for each covariate for mu, vector contains location and scale
+    array[nxsig] vector[2] sigma_prior; // one vector for each covariate for sigma, vector contains location and scale
 
     // covariance parameter priors (inverse Gamma)
-    array[sum(mu_s)+ sum(sigma_s)] vector[2] sills_prior; // prior parameters for sills/process variance, two for each spatial field
-    array[sum(mu_s) + sum(sigma_s)] vector[2] ranges_prior; // prior parameters for ranges/length scales, two for each spatial field
+    array[sum(mu_s)+ sum(sigma_s)] vector[2] sills_prior; // one vector for each spatial field, vector contains shape and scale
+    array[sum(mu_s) + sum(sigma_s)] vector[2] ranges_prior; // one vector for each spatial field, vector contains shape and scale
 
-    // prior for the altitude scaling factor f_z
-    vector[2] f_prior; // mean and variance (normal)
+    // prior for the altitude scaling factor f_z (Gamma)
+    vector[2] f_prior; // shape and inverse scale
 }
 transformed data {
     array[M] vector[2] x; // transform coordinate array to vectors
     for (m in 1:M){
         x[m] = to_vector(coord[m,]);
     }
-    vector[M] z_diff = z_stat-z_grid; // used as further predictor for FF
+    vector[M] z_diff = z_stat-z_grid; // calculate Delta z
 }
 parameters {
-    // factor for scaling altitude difference in covariance calculation
+    // factor for scaling altitude difference in distance metric
     real<lower=0> f;
 
     // means of spatially constant fields
@@ -76,10 +75,11 @@ parameters {
     vector<lower=0>[sum(mu_s) + sum(sigma_s)] sills;
     vector<lower=0>[sum(mu_s) + sum(sigma_s)] ranges;
 
-    // store representations of spatial fields
+    // store representations of spatial fields, array of vectors for each spatial field
     array[sum(mu_s) + sum(sigma_s)] vector[M] spat_pars;
 }
 model {
+    // define helper variables
     real dist;
 
     // mu vectors
@@ -88,6 +88,7 @@ model {
     // sigma vectors
     matrix[M,nxsig] sigma;
 
+    // start modeling
     // prior for the altitude factor
     f ~ gamma(f_prior[1],f_prior[2]);
 
@@ -167,7 +168,7 @@ model {
     vector[N] mu_vector;
     vector[N] sigma_vector;
 
-    // loop over all data points, work with station assignment vector nn
+    // work with station-data assignment vector nn and loop over all data points to construct the Gumbel-parameter vectors
     for (i in 1:N){
         mu_vector[i] = to_row_vector(mu[nn[i],])*to_vector(Xmu[,i]);
         sigma_vector[i] = to_row_vector(sigma[nn[i],])*to_vector(Xsigma[,i]);
