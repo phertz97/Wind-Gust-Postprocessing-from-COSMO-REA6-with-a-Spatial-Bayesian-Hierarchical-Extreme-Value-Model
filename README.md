@@ -39,7 +39,7 @@ Model names in this code differ from those in the manuscript. Please refer to th
 | SpatBHM 2a        | `SM_mu0_mu1_f`        | Model with spatial $\mu^0, \mu^1$, scaled altitude offset in distance metric |
 | SpatBHM 2b        | `SM_mu0_mu2_f`        | Model with spatial $\mu^0,\mu^2$, scaled altitude offset in distance metric |
 | SpatBHM 2c        | `SM_mu0_sigma0_f`     | Model with spatial $\mu^0, \varsigma^0$, scaled altitude offset in distance metric |
-| SpatBHM 3         | `SM_mu0_mu1_mu2_f`    | Model with spatial $\mu^0,\mu^1,\mu2$, scaled altitude offset in distance metric |
+| SpatBHM 3         | `SM_mu0_mu1_mu2_f`    | Model with spatial $\mu^0,\mu^1,\mu^2$, scaled altitude offset in distance metric |
 
 ## References:
   
