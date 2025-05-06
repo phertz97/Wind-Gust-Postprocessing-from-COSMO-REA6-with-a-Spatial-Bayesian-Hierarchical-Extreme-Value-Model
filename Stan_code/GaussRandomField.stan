@@ -10,7 +10,7 @@ functions {
         real d = sqrt(d_gc^2 + z_diff^2);
         return d;
     }
-    // matern 3/2 kernel for general distance measures d; here I will use the great circle distance above
+    // matern 3/2 kernel for general distance measures d;
     real matern32_general(real distance, real sigma, real length_scale) {
         real k = square(sigma) * (1 + sqrt(3) * distance / length_scale) * exp( - sqrt(3) * distance / length_scale );
         return k;
