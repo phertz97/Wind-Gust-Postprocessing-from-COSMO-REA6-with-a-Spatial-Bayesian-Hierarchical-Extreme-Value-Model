@@ -11,9 +11,9 @@ data {
     matrix[N, Msigma] xsigma;    // predictors for scale
 
     // prior parameters (Gaussian)
-    vector[Mmu] mumeans;          // mean of location regression coefficients
+    vector[Mmu] mu_means;          // mean of location regression coefficients
     vector[Mmu] mu_scales;      // scale of location regression coefficients
-    vector[Msigma] sigmameans;    // mean of scale regression coefficients
+    vector[Msigma] sigma_means;    // mean of scale regression coefficients
     vector[Msigma] sigma_scales;// scale of scale regression coefficients
 }
 parameters {
