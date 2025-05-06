@@ -1,4 +1,4 @@
-// Fit a Gaussian random field to the fields
+// Fit a Gaussian random field to the local coefficient representations
 functions {
     // euclidean distance metric, compsed of haversinde formla and scaled elevation offset
     real gr_circle_d(vector x, vector y, real hx, real hy, real f) {
