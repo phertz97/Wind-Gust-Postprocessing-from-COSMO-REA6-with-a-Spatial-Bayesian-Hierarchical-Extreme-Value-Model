@@ -1,6 +1,6 @@
-// Fit a Gaussian process to the fields
+// Fit a Gaussian random field to the fields
 functions {
-    // euclidean distance metric, compsed of haversinde formla and elevation offset
+    // euclidean distance metric, compsed of haversinde formla and scaled elevation offset
     real gr_circle_d(vector x, vector y, real hx, real hy, real f) {
         real r = 6371; // in km,  mean earth radius
         vector[2] x_rad = x*pi()/180;
@@ -18,16 +18,16 @@ functions {
 }
 data {
     int<lower=1> N; // number of observations
-    vector[N] y; //field to be fitted
+    vector[N] y; // values to be fitted
     array[N] vector[2] coord; // coordinates of observations
     vector[N] z_stat; // station altitude
 }
 parameters {
-    real mu; //mean of GP
-    real<lower=0> sill; //sill of covariance function
-    real<lower=0> range; //range of covariance function
+    real mu; //mean of GRF
+    real<lower=0> sill; //sill/process variance of covariance function
+    real<lower=0> range; //range/length scale of covariance function
 
-    // factor for scaling altitude difference in covariance calculation
+    // scaling factor for altitude difference in distance metric
     real<lower=0> f;
 }
 model {
@@ -38,7 +38,7 @@ model {
 
     // define predictive K matrix
     for (i in 1:N) {
-        K[i,i] = square(sill);// + square(sigma);
+        K[i,i] = square(sill);
         for (j in (i+1):N) {
             dist = gr_circle_d(coord[i],coord[j], z_stat[i], z_stat[j], f);
             K[i,j] = matern32_general(dist, sill, range); // range goes in in km
@@ -53,7 +53,6 @@ model {
     target += inv_gamma_lpdf(sill|2,2);
     target += inv_gamma_lpdf(range|1.05,50);
     target += gamma_lpdf(f|15,0.15);
-    //target += std_normal_lpdf(sigma);
 
     row_vector[N] mu_vec;
     mu_vec = rep_row_vector(mu,N);
