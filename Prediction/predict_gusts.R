@@ -5,8 +5,7 @@
 # This is an R script to perform the wind gust prediction process for all different gust models.
 # The models are selected via command line arguments from the shell.
 ####################################################################################################
-library(dplyr)
-library(tidyr)
+
 library(evd)
 
 # pass model name as command line argument
