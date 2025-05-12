@@ -24,13 +24,30 @@ All models are fitted using Hamiltonian Monte Carlo techniques and are implement
 - `Model_fits`: an output directory for the model fits in `Model_training_examples.ipynb`
 - `Prediction`: contains R-scripts used for the spatiotemporal predictions from SpatBHM and the reference models
 
-## Workflow notes
+## Workflow notes % Computational requirements.
 
 The entire pipeline was distributed across multiple tools and environments. The preprocessed data sets used for model training are found in the subdirectory `Data`, along with further details on the preprocessing. The model training was performed in a Jupyter notebook using the `pystan`-interface (Riddel et al. 2021). The model code is provided under `Stan_code` and a Jupyter Notebook with examples for its application is found under `Model_training_examples.ipynb`. Please note, that the execution of the model-fitting can take up to several weeks of computation time and creates an output directory `model_fits` with subdirectories according to model name. Prediction and verification were performed in R scripts via the shell. The prediction-scripts, including the spatial interpolation procedure, are provided in `Prediction`, along with further explanations in `Prediction/prediction.md`. Likewise, the running of `Prediction/spatial_interpolation.R` and `Prediction/predict_gusts.R` will create individual output directories.
 
 To ensure reproducibility, all relevant scripts are available as separate files. A guide for switching between the different tools is provided in the accompanying `README.md` document.
 
 The data is provided in standardized formats (e.g., CSV, NetCDF), which can be used seamlessly across all tools. Additional instructions on adjusting file paths and configuring the environment are also included in the `README.md` document.
+
+The software versions that were used to run the analyses are the following:
+
+Python (3.9.18)
+- `numpy` (1.23.5)
+- `pandas` (2.1.0)
+- `xarray` (2024.7.0)
+- `pystan` (3.9.0)
+
+R (4.2.2)
+- `MASS` (7.3.58.1)
+- `geosphere` (1.5.18)
+- `geoR` (1.9.4)
+- `evd` (2.3.6.1)
+- `stringr` (1.5.1)
+- `reliabilitydiag` (0.2.1)
+- `isotone` (1.1.1)
 
 ## Model names
 
@@ -72,6 +89,6 @@ M.: Model diagnostics and forecast evaluation for quantiles, Ann. Rev. Stat. App
   R Development Core Team: R: A language and environment for statistical computing, R Foundation for Statistical Computing, Vienna,
 Austria, http://www.R-project.org, ISBN 3-900051-07-0, 2010.
   
-  Riddell, A., Hartikainen, A., and Carter, M.: pystan (3.0.0), https://pystan.readthedocs.io/en/latest/, 2021.
+  Riddell, A., Hartikainen, A., and Carter, M.: pystan (3.9.0), https://pystan.readthedocs.io/en/latest/, 2021.
 
   Stan Development Team: Stan: A probabilistic programming language, Stan Development Team, https://mc-stan.org/, version 2.33, 2022.
