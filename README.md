@@ -72,6 +72,6 @@ M.: Model diagnostics and forecast evaluation for quantiles, Ann. Rev. Stat. App
   R Development Core Team: R: A language and environment for statistical computing, R Foundation for Statistical Computing, Vienna,
 Austria, http://www.R-project.org, ISBN 3-900051-07-0, 2010.
   
-  Riddell, A., Hartikainen, A., and Carter, M.: pystan (3.0.0), PyPI, 2021.
+  Riddell, A., Hartikainen, A., and Carter, M.: pystan (3.0.0), https://pystan.readthedocs.io/en/latest/, 2021.
 
   Stan Development Team: Stan: A probabilistic programming language, Stan Development Team, https://mc-stan.org/, version 2.33, 2022.
