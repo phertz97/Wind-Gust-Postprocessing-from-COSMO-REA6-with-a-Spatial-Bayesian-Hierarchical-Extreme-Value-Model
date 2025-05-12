@@ -39,6 +39,7 @@ Python (3.9.18)
 - `pandas` (2.1.0)
 - `xarray` (2024.7.0)
 - `pystan` (3.9.0)
+- `nest_asyncio` (1.5.6)
 
 R (4.2.2)
 - `MASS` (7.3.58.1)
