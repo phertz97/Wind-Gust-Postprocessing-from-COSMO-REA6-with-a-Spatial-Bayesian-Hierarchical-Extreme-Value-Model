@@ -24,7 +24,7 @@ All models are fitted using Hamiltonian Monte Carlo techniques and are implement
 - `Model_fits`: an output directory for the model fits in `Model_training_examples.ipynb`
 - `Prediction`: contains R-scripts used for the spatiotemporal predictions from SpatBHM and the reference models
 
-## Workflow notes % Computational requirements.
+## Workflow notes & Computational requirements.
 
 The entire pipeline was distributed across multiple tools and environments. The preprocessed data sets used for model training are found in the subdirectory `Data`, along with further details on the preprocessing. The model training was performed in a Jupyter notebook using the `pystan`-interface (Riddel et al. 2021). The model code is provided under `Stan_code` and a Jupyter Notebook with examples for its application is found under `Model_training_examples.ipynb`. Please note, that the execution of the model-fitting can take up to several weeks of computation time and creates an output directory `model_fits` with subdirectories according to model name. Prediction and verification were performed in R scripts via the shell. The prediction-scripts, including the spatial interpolation procedure, are provided in `Prediction`, along with further explanations in `Prediction/prediction.md`. Likewise, the running of `Prediction/spatial_interpolation.R` and `Prediction/predict_gusts.R` will create individual output directories.
 
