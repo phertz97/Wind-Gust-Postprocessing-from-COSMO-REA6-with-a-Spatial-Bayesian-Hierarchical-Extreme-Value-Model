@@ -3,7 +3,7 @@
 ## 1. Wind gust observations $fx$
 
 The data files were accessed from the DWD's climate data center under https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/extreme_wind/historical/, last access on 31 October 2023.
-Hours from 13-18 UTC, months from May to October and years between 2001 and 2018 were selected in using the `pandas 2.1.0` in Python (Version `3.9.18`). 
+Hours from 13-18 UTC, months from May to October and years between 2001 and 2018 were selected in using the `pandas` in Python. 
 
 The full observational data set was reduced to a consistent set data wihtout `NaN`-values in several steps:
 
@@ -15,7 +15,7 @@ Due to the automated nature of the process, the exact decision-making for indivi
 Given the small autocorrelation in wind gust data, this cleaning procedure is unlikely to significantly impact the modeling of underlying wind patterns. 
 The step was taken to eliminate data errors and ensure a robust dataset, that is consistent in space and time.
 
-After the creation of a consistent dataset, we caculated daily maxima using `pandas 2.1.0`. 
+After the creation of a consistent dataset, we caculated daily maxima using `pandas`. 
 The final results can be found under `fx_training.csv`, containing the odd-numbered years, and `fx_evaluation.csv`, containing the even-numbered years.
 
 ## 1.1 Station metadata, coordinates & altitude
@@ -23,14 +23,14 @@ The final results can be found under `fx_training.csv`, containing the odd-numbe
 The station metadata used in this study is based on publicly available data from the German Weather Service (DWD, https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/extreme_wind/historical/FX_Stundenwerte_Beschreibung_Stationen.txt). The original file was adapted as follows:
 
 - Special characters (e.g., German umlauts) were replaced with ASCII equivalents for compatibility reasons (e.g., “München” → “Muenchen”).
-- The full list of stations was reduced in the data-cleaning procedure described under 1,1.
+- The full list of stations was reduced in the data-cleaning procedure described under 1.1.
 
 Geographic coordinates and elevation data were not modified. The final list of stations used is included in this repository under `used_stations.csv`
 
 ## 2. COSMO-REA6 variables
 
 The predictor data from COSMO-REA6 used in this study is obtained from the DWD open data server https://opendata.dwd.de/climate_environment/REA/COSMO-REA6/. 
-The data was downloaded as `.grb`-files and processed using `xarray 2024.7.0` in Python version `3.9.18.`
+The data was downloaded as `.grb`-files and processed using `xarray` in Python.
 
 ### 2.1 VMAX_10M
 
