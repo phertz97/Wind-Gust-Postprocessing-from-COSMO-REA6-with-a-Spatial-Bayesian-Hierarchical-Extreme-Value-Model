@@ -2,7 +2,7 @@
 # Author: Philipp Ertz, July 2024. Last edit: May 2025
 #
 # Functions required for the spatial interpolation process:
-# draw_cond_GRF: drawing one representation for the prediction locations from one Gaussian random field.
+# draw_cond_GRF: drawing one conditional representation for the prediction locations from one Gaussian random field.
 # draw_cond_large_GRF: iterative application of draw_cond_GRF, for drawing large fields from a conditional GRF (Sect. 5.6)
 ########################################################################################################
 
