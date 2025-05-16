@@ -60,7 +60,7 @@ Model names in this code differ from those in the manuscript. Please refer to th
 | ConstMod 2        | `Baseline_mu2`        | as 1. + altitude predictor $\Delta_z$ for location $\mu$ |
 | ConstMod 3        | `Baseline_vmean`      | but predicting $fx-V_\text{m}$        |
 | ConstMod 4        | `Baseline_optimal`    | as 3. + predictor $V_\text{m}$        |
-| LocMod            | `LocMod`              | as 4., without $\Delta_z$, trained on individual stations |
+| LocMod            | `LocMod`              | as 4., without $\Delta z$, trained on individual stations |
 | SpatBHM 1         | `SM_mu0_f`            | Model with spatial $\mu^0$, scaled altitude offset in distance metric |
 | SpatBHM 2a        | `SM_mu0_mu1_f`        | Model with spatial $\mu^0, \mu^1$, scaled altitude offset in distance metric |
 | SpatBHM 2b        | `SM_mu0_mu2_f`        | Model with spatial $\mu^0,\mu^2$, scaled altitude offset in distance metric |
