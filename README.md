@@ -4,12 +4,12 @@ The aim of this study is to provide a probabilistic gust analysis for the region
 station observations and with an interpolation to unobserved locations. To this end, we develop a spatial Bayesian hierarchical
 model (BHM) for the post-processing of surface maximum wind gusts from the COSMO-REA6 reanalysis. Our approach uses
 a non-stationary extreme value distribution for the gust observations at the top level, with parameters that vary according to a
-linear model using COSMO-REA6 predictor variables. To capture spatial patterns in surface extreme wind gust behavior, the5
+linear model using COSMO-REA6 predictor variables. To capture spatial patterns in surface extreme wind gust behavior, the
 regression coefficients are modeled as 2-dimensional Gaussian random fields with a constant mean and an isotropic covariance
 function that depends only on the distance between locations. In addition, we include an elevation offset in the distance metric
 for the covariance function to account for differences in topography. This allows us to include data from mountaintop stations
 in the training process and to utilize all available information. The training of the BHM is carried out with an independent
-data set from which the data at the station to be predicted are excluded. We evaluate the spatial prediction performance at the10
+data set from which the data at the station to be predicted are excluded. We evaluate the spatial prediction performance at the
 withheld station using Brier score and quantile score, including their decomposition, and compare the performance of our BHM
 to climatological forecasts and a non-hierarchical, spatially constant baseline model. This is done for 109 weather stations in
 Germany.
@@ -57,7 +57,7 @@ Model names in this code differ from those in the manuscript. Please refer to th
 | Name in paper     | Name in code          | Description                           |
 |-------------------|-----------------------|---------------------------------------|
 | ConstMod 1        | `Baseline0`           | spatially constant model, using $V_\text{max}$ as sole predictor |
-| ConstMod 2        | `Baseline_mu2`        | as 1. + altitude predictor $\Delta_z$ for location $\mu$ |
+| ConstMod 2        | `Baseline_mu2`        | as 1. + altitude predictor $\Delta z$ for location $\mu$ |
 | ConstMod 3        | `Baseline_vmean`      | but predicting $fx-V_\text{m}$        |
 | ConstMod 4        | `Baseline_optimal`    | as 3. + predictor $V_\text{m}$        |
 | LocMod            | `LocMod`              | as 4., without $\Delta z$, trained on individual stations |
