@@ -1,4 +1,4 @@
-# Wind-Gust-Postprocessing-from-COSMO-REA6-with-a-Spatial-Bayesian-Hierarchical-Extreme-Value-Model
+# Wind gust gostprocessing from COSMO-REA6 with a spatial Bayesian hierarchical extreme value model
 
 The aim of this study is to provide a probabilistic gust analysis for the region of Germany that is calibrated with
 station observations and with an interpolation to unobserved locations. To this end, we develop a spatial Bayesian hierarchical
