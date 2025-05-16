@@ -8,7 +8,7 @@ authors:
   given-names: "Petra"
   orcid: "https://orcid.org/0000-0003-4566-572X"
 title: "Wind gust postprocessing from COSMO-REA6 with a spatial Bayesian hierarchical extreme value model"
-version: 1.0.0
+version: 1.0.1
 date-released: 2025-05-16
 doi: "https://doi.org/10.5281/zenodo.15441303"
 url: "https://github.com/phertz97/Wind-Gust-Postprocessing-from-COSMO-REA6-with-a-Spatial-Bayesian-Hierarchical-Extreme-Value-Model"
