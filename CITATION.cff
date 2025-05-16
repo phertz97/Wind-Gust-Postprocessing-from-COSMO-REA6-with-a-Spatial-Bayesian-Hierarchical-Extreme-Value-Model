@@ -10,4 +10,5 @@ authors:
 title: "Wind gust postprocessing from COSMO-REA6 with a spatial Bayesian hierarchical extreme value model"
 version: 1.0.0
 date-released: 2025-05-16
+doi:
 url: "https://github.com/phertz97/Wind-Gust-Postprocessing-from-COSMO-REA6-with-a-Spatial-Bayesian-Hierarchical-Extreme-Value-Model"
