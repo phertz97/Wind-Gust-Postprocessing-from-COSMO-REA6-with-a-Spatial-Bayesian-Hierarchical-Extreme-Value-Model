@@ -19,10 +19,11 @@ All models are fitted using Hamiltonian Monte Carlo techniques and are implement
 ## Contents of this repository
 
 - `Data`: contains the used data sets with a short description of sources and preprocessing methods
-- `Stan_code`: contains model code for Stan
-- `Model_training_examples.ipynb`: a JupyterNotebook containing python code examples for model training with pystan
-- `Model_fits`: an output directory for the model fits in `Model_training_examples.ipynb`
+- `Kriging`: contains the output files from the spatial interpolation process
+- `Model_fits`: contains the output files from model training in `Model_training_examples.ipynb`
 - `Prediction`: contains R-scripts used for the spatiotemporal predictions from SpatBHM and the reference models
+- `Stan_code`: contains the Stan code used for model training
+- `Model_training_examples.ipynb`: a JupyterNotebook containing python code examples for model training with pystan
 
 ## Workflow notes & Computational requirements.
 
