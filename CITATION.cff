@@ -1,0 +1,11 @@
+cff-version: 1.0.0
+message: "When using code or data from this repository, please cite the following reference:"
+title: "Wind Gust Analysis Tools"
+authors:
+  - family-names: Ertz
+    given-names: Philipp
+    orcid: "https://orcid.org/0009-0009-1502-288X"
+version: 1.0.0
+doi: 
+date-released: 2025-05-16
+url: https://github.com/phertz97/Wind-Gust-Postprocessing-from-COSMO-REA6-with-a-Spatial-Bayesian-Hierarchical-Extreme-Value-Model
